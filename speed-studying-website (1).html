@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpeedStudying - Become a Better Learner</title>
+    <style>
+        :root {
+            --primary-dark: #121212;
+            --primary-blue: #2962ff;
+            --primary-blue-light: #768fff;
+            --text-white: #f5f5f5;
+            --accent-white: #e0e0e0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--primary-dark);
+            color: var(--text-white);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background-color: var(--primary-blue);
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .logo {
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        main {
+            flex: 1;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .container {
+            background-color: rgba(41, 98, 255, 0.1);
+            border: 1px solid var(--primary-blue);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1, h2, h3 {
+            color: var(--primary-blue-light);
+        }
+        
+        button {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 0.5rem;
+        }
+        
+        button:hover {
+            background-color: var(--primary-blue-light);
+        }
+        
+        .timer-container {
+            font-size: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .quiz-container {
+            display: none;
+        }
+        
+        .question {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border-left: 4px solid var(--primary-blue);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        
+        .option {
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--primary-blue-light);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .option:hover {
+            background-color: rgba(41, 98, 255, 0.2);
+        }
+        
+        .selected {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+        
+        .correct {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .incorrect {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .result-container {
+            text-align: center;
+            display: none;
+        }
+        
+        .score {
+            font-size: 3rem;
+            margin: 1rem 0;
+        }
+        
+        .feedback {
+            margin: 1rem 0;
+            font-size: 1.2rem;
+        }
+        
+        .ad-container {
+            margin: 2rem 0;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--accent-white);
+            border-radius: 4px;
+            text-align: center;
+            color: var(--accent-white);
+        }
+        
+        footer {
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--accent-white);
+        }
+        
+        @media (min-width: 768px) {
+            .options {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        /* Enhanced styling for better look */
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-blue);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .topic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--primary-blue-light);
+            padding-bottom: 0.5rem;
+        }
+        
+        .subject-badge {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .streak-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .streak-title {
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .streak-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-blue-light);
+        }
+        
+        .ads-sidebar {
+            position: fixed;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 160px;
+            display: none;
+        }
+        
+        @media (min-width: 1400px) {
+            .ads-sidebar {
+                display: block;
+            }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(41, 98, 255, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(41, 98, 255, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(41, 98, 255, 0);
+            }
+        }
+        
+        .show-answer {
+            color: var(--primary-blue-light);
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: inline-block;
+        }
+        
+        .answer-explanation {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid var(--primary-blue);
+            font-size: 0.9rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">SpeedStudying</div>
+        <p>Boost your learning efficiency with timed studying and quizzes</p>
+    </header>
+
+    <main>
+        <div class="container" id="intro-section">
+            <h1>Welcome to SpeedStudying</h1>
+            <p>Train your brain to learn quickly and efficiently with our speed studying platform:</p>
+            <ol>
+                <li>Get a random 9th grade topic</li>
+                <li>Study it intensely for 5 minutes</li>
+                <li>Test your knowledge with a quiz</li>
+                <li>Review your results and improve</li>
+            </ol>
+            <p>This method helps you improve focus, comprehension, and test-taking skills.</p>
+            <button id="start-btn" class="pulse-animation">Start Speed Studying</button>
+        </div>
+
+        <div class="ad-container">
+            <p>Advertisement</p>
+            <div id="main-ad-slot">
+                <img src="/api/placeholder/728/90" alt="Advertisement placeholder" />
+            </div>
+        </div>
+
+        <div class="container" id="topic-section" style="display: none;">
+            <div class="topic-header">
+                <h2>Your Study Topic:</h2>
+                <div class="subject-badge" id="subject-badge">Subject</div>
+            </div>
+            <div id="topic-display" style="font-size: 1.5rem; margin: 1rem 0;"></div>
+            <div id="topic-content"></div>
+            
+            <div class="timer-container">
+                <p>Time remaining to study:</p>
+                <div id="timer">5:00</div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="timer-progress"></div>
+                </div>
+            </div>
+            
+            <button id="ready-btn" style="display: none;">I'm Ready for the Quiz</button>
+        </div>
+
+        <div class="container quiz-container" id="quiz-section">
+            <h2>Quiz Time!</h2>
+            <div id="quiz-questions"></div>
+            <button id="submit-quiz" style="display: none;">Submit Answers</button>
+        </div>
+
+        <div class="container result-container" id="result-section">
+            <h2>Your Results</h2>
+            <div class="score">
+                <span id="score-display">0/0</span>
+            </div>
+            <div class="feedback" id="feedback-text"></div>
+            <button id="try-again-btn">Try Another Topic</button>
+        </div>
+    </main>
+
+    <div class="streak-container" style="display: none;">
+        <div class="streak-title">Study Streak</div>
+        <div class="streak-value">0</div>
+    </div>
+
+    <div class="ads-sidebar">
+        <div class="ad-container">
+            <p>Ad</p>
+            <img src="/api/placeholder/160/600" alt="Advertisement placeholder" />
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 SpeedStudying. All rights reserved.</p>
+        <p>Using our service helps support education initiatives through ad revenue</p>
+    </footer>
+
+    <script>
+        // Define our subjects and topics
+        const subjects = {
+            "Mathematics": [
+                {
+                    topic: "Quadratic Equations",
+                    content: `
+                        <h3>Quadratic Equations</h3>
+                        <p>A quadratic equation has the standard form: ax² + bx + c = 0, where a ≠ 0.</p>
+                        <p>You can solve quadratic equations using several methods:</p>
+                        <ul>
+                            <li><strong>Factoring:</strong> Find factors of the equation and set each factor equal to zero.</li>
+                            <li><strong>Quadratic Formula:</strong> x = (-b ± √(b² - 4ac)) / 2a</li>
+                            <li><strong>Completing the Square:</strong> Rearrange the equation to create a perfect square trinomial.</li>
+                        </ul>
+                        <p>The discriminant (b² - 4ac) tells you how many real solutions exist:</p>
+                        <ul>
+                            <li>If b² - 4ac > 0: Two distinct real solutions</li>
+                            <li>If b² - 4ac = 0: One real solution (repeated root)</li>
+                            <li>If b² - 4ac < 0: No real solutions (two complex solutions)</li>
+                        </ul>
+                        <p>Example: Solve x² - 5x + 6 = 0</p>
+                        <p>By factoring: (x - 2)(x - 3) = 0, so x = 2 or x = 3</p>
+                    `,
+                    questions: [
+                        {
+                            question: "What is the quadratic formula?",
+                            options: [
+                                "x = (-b ± √(b² - 4ac)) / 2a",
+                                "x = (-b ± √(b² + 4ac)) / 2a",
+                                "x = -b ± √(b² - 4ac)",
+                                "x = b² - 4ac"
+                            ],
+                            correctAnswer: 0,
+                            explanation: "The quadratic formula is x = (-b ± √(b² - 4ac)) / 2a, where a, b, and c are the coefficients from the standard form ax² + bx + c = 0."
+                        },
+                        {
+                            question: "For the equation x² - 7x + 12 = 0, what are the solutions?",
+                            options: [
+                                "x = 3 and x = 4",
+                                "x = 3 and x = -4",
+                                "x = -3 and x = -4",
+                                "x = -3 and x = 4"
+                            ],
+                            correctAnswer: 0,
+                            explanation: "To solve x² - 7x + 12 = 0, we factor it to (x - 3)(x - 4) = 0, which gives us x = 3 or x = 4."
+                        },
+                        {
+                            question: "If the discriminant of a quadratic equation is zero, how many real solutions does the equation have?",
+                            options: [
+                                "Zero solutions",
+                                "One solution (repeated root)",
+                                "Two distinct solutions",
+                                "Infinite solutions"
+                            ],
+                            correctAnswer: 1,
+                            explanation: "When the discriminant (b² - 4ac) equals zero, the equation has exactly one real solution, which is a repeated root."
+                        },
+                        {
+                            question: "Which of the following quadratic equations has no real solutions?",
+                            options: [
+                                "x² + 4x + 4 = 0",
+                                "x² - 9 = 0",
+                                "x² + 1 = 0",
+                                "x² - 2x - 3 = 0"
+                            ],
+                            correctAnswer: 2,
+                            explanation: "x² + 1 = 0 has no real solutions because the equation can be rearranged to x² = -1, and there is no real number that when squared equals -1."
+                        },
+                        {
+                            question: "What is the value of 'a' in the standard form of a quadratic equation?",
+                            options: [
+                                "a can be any number",
+                                "a must equal 1",
+                                "a cannot equal 0",
+                                "a must be a positive number"
+                            ],
+                            correctAnswer: 2,
+                            explanation: "In the standard form ax² + bx + c = 0, 'a' cannot equal 0 because if a = 0, the equation would no longer be quadratic (it would be linear)."
+                        }
+                    ]
+                },
+                {
+                    topic: "Linear Systems of Equations",
+                    content: `
+                        <h3>Linear Systems of Equations</h3>
+                        <p>A system of linear equations consists of two or more linear equations with the same variables.</p>
+                        <p>For example, a system of two equations with two variables (x and y):</p>
+                        <p>3x + 2y = 7</p>
+                        <p>2x - y = 1</p>
+                        
+                        <p>Methods to solve systems of equations:</p>
+                        <ul>
+                            <li><strong>Substitution:</strong> Solve for one variable in one equation and substitute into the other.</li>
+                            <li><strong>Elimination:</strong> Add or subtract the equations to eliminate one variable.</li>
+                            <li><strong>Graphing:</strong> Graph both equations and find their intersection point.</li>
+                        </ul>
+                        
+                        <p>Possible outcomes:</p>
+                        <ul>
+                            <li><strong>One solution:</strong> Lines intersect at exactly one point.</li>
+                            <li><strong>No solution:</strong> Lines are parallel (inconsistent system).</li>
+                            <li><strong>Infinitely many solutions:</strong> Lines are the same (dependent system).</li>
+                        </ul>
+                        
+                        <p>For the example above, using elimination:</p>
+                        <p>3x + 2y = 7 (multiply by 1)</p>
+                        <p>2x - y = 1 (multiply by 2)</p>
+                        <p>Result: 3x + 2y = 7 and 4x - 2y = 2</p>
+                        <p>Adding: 7x = 9, so x = 9/7</p>
+                        <p>Substituting back: y = 2x - 1 = 2(9/7) - 1 = 18/7 - 1 = 11/7</p>
+                        <p>Solution: (9/7, 11/7)</p>
+                    `,
+                    questions: [
+                        {
+                            question: "Which method involves adding or subtracting equations to remove a variable?",
+                            options: [
+                                "Substitution method",
+                                "Elimination method",
+                                "Graphing method",
+                                "Quadratic formula"
+                            ],
+                            correctAnswer: 1,
+                            explanation: "The elimination method involves adding or subtracting equations to eliminate one variable, making it easier to solve for the remaining variable."
+                        },
+                        {
+                            question: "What is the solution to the system: x + y = 5, x - y = 3?",
+                            options: [
+                                "x = 4, y = 1",
+                                "x = 2, y = 3",
+                                "x = 1, y = 4",
+                                "x = 3, y = 2"
+                            ],
+                            correctAnswer: 0,
+                            explanation: "Adding the equations: 2x = 8, so x = 4. Substituting back: 4 + y = 5, so y = 1. Therefore, the solution is (4, 1)."
+                        },
+                        {
+                            question: "In a system of linear equations, if the lines are parallel, how many solutions exist?",
+                            options: [
+                                "Exactly one solution",
+                                "No solution",
+                                "Infinitely many solutions",
+                                "Two solutions"
+                            ],
+                            correctAnswer: 1,
+                            explanation: "Parallel lines never intersect, so a system of equations represented by parallel lines has no solution. This is called an inconsistent system."
+                        },
+                        {
+                            question: "What describes a system with infinitely many solutions?",
+                            options: [
+                                "Inconsistent system",
+                                "Independent system",
+                                "Dependent system",
+                                "Parallel system"
+                            ],
+                            correctAnswer: 2,
+                            explanation: "A dependent system has infinitely many solutions. This occurs when the equations represent the same line, meaning every point on that line is a solution."
+                        },
+                        {
+                            question: "Using the elimination method, what is the first step to solve: 2x + 3y = 12, 4x - 3y = 0?",
+                            options: [
+                                "Divide the first equation by 2",
+                                "Multiply the second equation by 2",
+                                "Add the two equations directly",
+                                "Subtract the first equation from the second"
+                            ],
+                            correctAnswer: 2,
+                            explanation: "For these equations, you can add them directly because the y-terms will cancel out: (2x + 3y) + (4x - 3y) = 12 + 0, resulting in 6x = 12."
+                        }
+                    ]
+                }
+            ],
+            "Science": [
+                {
+                    topic: "Chemical Bonding",
+                    content: `
+                        <h3>Chemical Bonding</h3>
+                        <p>Chemical bonding is the attraction between atoms that allows them to form molecules and compounds. The three main types of chemical bonds are:</p>
+                        
+                        <h4>1. Ionic Bonds</h4>
+                        <p>Formed when electrons are transferred from one atom to another, creating oppositely charged ions that attract each other.</p>
+                        <ul>
+                            <li>Usually occurs between metals and non-metals</li>
+                            <li>Results in crystalline structures</li>
+                            <li>Example: NaCl (table salt) - Na donates an electron to Cl</li>
+                        </ul>
+                        
+                        <h4>2. Covalent Bonds</h4>
+                        <p>Formed when atoms share electron pairs to achieve stable electron configurations.</p>
+                        <ul>
+                            <li>Usually occurs between non-metals</li>
+                            <li>Can be single, double, or triple bonds depending on how many electron pairs are shared</li>
+                            <li>Example: H₂O (water) - oxygen shares electrons with two hydrogen atoms</li>
+                        </ul>
+                        
+                        <h4>3. Metallic Bonds</h4>
+                        <p>Formed in metals where valence electrons are free to move throughout the structure, creating a "sea of electrons."</p>
+                        <ul>
+                            <li>Explains properties like conductivity and malleability</li>
+                            <li>Example: Copper, iron, aluminum</li>
+                        </ul>
+                        
+                        <p><strong>Electronegativity</strong> measures an atom's ability to attract electrons in a bond. The greater the difference in electronegativity between atoms, the more polar the bond becomes.</p>
+                    `,
+                    questions: [
+                        {
+                            question: "Which type of bonding involves the transfer of electrons?",
+                            options: [
+                                "Covalent bonding",
+                                "Ionic bonding",
+                                "Metallic bonding",
+                                "Hydrogen bonding"
+                            ],
+                            correctAnswer: 1,
+                            explanation: "Ionic bonding involves the complete transfer of electrons from one atom to another, creating oppositely charged ions that attract each other."
+                        },
+                        {
+                            question: "In a water molecule (H₂O), what type of bond exists between hydrogen and oxygen?",
+                            options: [
+                                "Ionic bond",
+                                "Metallic bond",
+                                "Covalent bond",
+                                "No bond exists"
+                            ],
+                            correctAnswer: 2,
+                            explanation: "Water molecules feature covalent bonds between oxygen and hydrogen atoms, where electrons are shared rather than transferred."
+                        },
+                        {
+                            question: "Which of the following is NOT a property typically associated with ionic compounds?",
+                            options: [
+                                "High melting points",
+                                "Conductivity in solid state",
+                                "Crystal structure formation",
+                                "Solubility in water"
+                            ],
+                            correctAnswer: 1,
+                            explanation: "Ionic compounds typically do not conduct electricity in the solid state because the ions are fixed in position. They can conduct when dissolved in water or melted."
+                        },
+                        {
+                            question: "What determines the polarity of a chemical bond?",
+                            options: [
+                                "The number of electrons shared",
+                                "The difference in electronegativity between atoms",
+                                "The atomic mass of the elements",
+                                "The number of neutrons in each atom"
+                            ],
+                            correctAnswer: 1,
+                            explanation: "The difference in electronegativity between bonded atoms determines the polarity of the bond. Larger differences create more polar bonds."
+                        },
+                        {
+                            question: "Which type of bonding explains why metals are good conductors of electricity?",
+                            options: [
+                                "Covalent bonding",
+                                "Ionic bonding",
+                                "Metallic bonding",
+                                "Hydrogen bonding"
+                            ],
+                            correctAnswer: 2,
+                            explanation: "Metallic bonding creates a 'sea of electrons' that can move freely throughout the metal structure, allowing metals to conduct electricity and heat efficiently."
+                        }
+                    ]
+                },
+                {
+                    topic: "Cell Structure and Function",
+                    content: `
+                        <h3>Cell Structure and Function</h3>
+                        <p>Cells are the basic structural and functional units of all living organisms. There are two main types of cells:</p>
+                        
+                        <h4>Prokaryotic Cells</h4>
+                        <ul>
+                            <li>No membrane-bound nucleus or organelles</li>
+                            <li>DNA floats freely in the cytoplasm</li>
+                            <li>Examples: bacteria and archaea</li>
+                            <li>Simpler and smaller than eukaryotic cells</li>
+                        </ul>
+                        
+                        <h4>Eukaryotic Cells</h4>
+                        <ul>
+                            <li>Contains a true nucleus and specialized organelles</li>
+                            <li>Found in plants, animals, fungi, and protists</li>
+                            <li>More complex than prokaryotic cells</li>
+                        </ul>
+                        
+                        <h4>Major Cell Organelles:</h4>
+                        <ol>
+                            <li><strong>Cell Membrane:</strong> Controls what enters and exits the cell</li>
+                            <li><strong>Nucleus:</strong> Contains genetic material (DNA) and controls cell activities</li>
+                            <li><strong>Mitochondria:</strong> Produces energy through cellular respiration (powerhouse of the cell)</li>
+                            <li><strong>Endoplasmic Reticulum:</strong> Transports materials within the cell</li>
+                            <li><strong>Golgi Apparatus:</strong> Packages and distributes proteins</li>
+                            <li><strong>Lysosomes:</strong> Contains digestive enzymes to break down waste</li>
+                            <li><strong>Chloroplasts:</strong> Found in plant cells, conducts photosynthesis</li>
+                            <li><strong>Vacuoles:</strong> Storage compartments (larger in plant cells)</li>
+                            <li><strong>Ribosomes:</strong> Site of protein synthesis</li>
+                        </ol>
+                        
+                        <p>Plant cells differ from animal cells by having cell walls, chloroplasts, and large central vacuoles.</p>
+                    `,
+                    questions: [
+                        {
+                            question: "Which organelle is known as the 'powerhouse of the cell'?",
+                            options: [
+                                "Nucleus",
+                                "Mitochondria",
+                                "Golgi apparatus",
+                                "Endoplasmic reticulum"
+                            ],
+                            correctAnswer: 1,
+                            explanation: "Mitochondria are known as the 'powerhouse of the cell' because they generate most of the cell's supply of adenosine triphosphate (ATP), the energy currency of cells."
+                        },
+                        {
+                            question: "Which of the following is NOT found in animal cells?",
+                            options: [
+                                "Mitochondria",
+                                "Chloroplasts",
+                                "Ribosomes",
+                                "Lysosomes"
+                            ],
+                            correctAnswer: 1,
+                            explanation: "Chloroplasts are not found in animal cells. They are specific to plant cells and some protists, where they perform photosynthesis to convert light energy into chemical energy."
+                        },
+                        {
+                            question: "What is the main function of the cell membrane?",
+                            options: [
+                                "To produce energy",
+                                "To control what enters and exits the cell",
+                                "To store genetic information",
+                                "To digest food particles"
+                            ],
+                            correctAnswer: 1,
+                            explanation: "The cell membrane (plasma membrane) controls what substances enter and exit the cell, maintaining the cell's internal environment through selective permeability."
+                        },
+                        {
+                            question: "Which type of cell has no membrane-bound nucleus?",
+                            options: [
+                                "Plant cell",
+                                "Animal cell",
+                                "Prokaryotic cell",
+                                "Fungal cell"
+                            ],
+                            correctAnswer: 2,
+                            explanation: "Prokaryotic cells (like bacteria) have no membrane-bound nucleus or organelles. Their DNA floats freely in the cytoplasm rather than being enclosed in a nucleus."
+                        },
+                        {
+                            question: "What is the main function of ribosomes?",
+                            options: [
+                                "Protein synthesis",
+                                "Energy production",
+                                "Waste digestion",
+                                "Photosynthesis"
+                            ],
+                            correctAnswer: 0,
+                            explanation: "Ribosomes are responsible for protein synthesis. They read the genetic information from mRNA and assemble amino acids into proteins according to that code."
+                        }
+                    ]
+                }
+            ],
+            "English": [
+                {
+                    topic: "Literary Devices and Techniques",
+                    content: `
+                        <h3>Literary Devices and Techniques</h3>
+                        <p>Literary devices are techniques writers use to create meaning, enhance their writing, and connect with readers.</p>
+                        
+                        <h4>Common Literary Devices:</h4>
+                        
+                        <p><strong>1. Imagery</strong> - Language that appeals to the senses (sight, sound, taste, touch, smell).</p>
+                        <p>Example: "The rusty old swing set creaked in the howling wind."</p>
+                        
+                        <p><strong>2. Metaphor</strong> - Direct comparison between two unlike things without using "like" or "as".</p>
+                        <p>Example: "Her words were daggers to his heart."</p>
+                        
+                        <p><strong>3. Simile</strong> - Comparison using "like" or "as".</p>
+                        <p>Example: "She ran like the wind" or "He is as stubborn as a mule."</p>
+                        
+                        <p><strong>4. Personification</strong> - Giving human qualities to non-human things.</p>
+                        <p>Example: "The wind whispered through the trees."</p>
+                        
+                        
